@@ -1,44 +1,175 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A Pikachu / Onet style matching game with a 6x6 grid.">
-    <title>Pikachu Match Game</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Onet Connect Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <div class="game-container">
-        <header>
-            <h1>Pikachu Match</h1>
-            <div class="stats">
-                <div class="stat-box">
-                    <span class="label">Score</span>
-                    <span id="score" class="value">0</span>
-                </div>
-                <div class="stat-box">
-                    <span class="label">Time</span>
-                    <span id="time" class="value">60</span>
-                </div>
-                <button id="reset-btn">Restart</button>
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <div id="app">
+        <!-- ================= MAIN MENU ================= -->
+        <section id="screen-menu" class="screen active">
+            <header class="menu-header">
+                <div class="header-stat"><i class="fas fa-star-half-alt"></i> Lv.<span id="menu-level">1</span> (<span
+                        id="menu-xp">0</span>XP)</div>
+                <div class="header-stat"><i class="fas fa-coins text-gold"></i> <span id="menu-coins">0</span></div>
+            </header>
+
+            <div class="logo-container">
+                <div class="logo-icon">⚡</div>
+                <h1 class="logo-text">ONET<br><span class="text-accent">MASTER</span></h1>
             </div>
-        </header>
 
-        <main>
-            <div id="grid" class="grid"></div>
-        </main>
-    </div>
+            <div class="menu-buttons">
+                <button class="btn btn-primary btn-large glow"
+                    onclick="UI.switchScreen('screen-game'); GameEngine.startLevel(StorageManager.data.level);">
+                    <i class="fas fa-play"></i> PLAY (Lv <span id="btn-play-level">1</span>)
+                </button>
+                <div class="flex-row">
+                    <button class="btn btn-secondary" onclick="UI.showModal('modal-shop')"><i class="fas fa-store"></i>
+                        Shop</button>
+                    <button class="btn btn-secondary" onclick="UI.showModal('modal-daily')"><i class="fas fa-gift"></i>
+                        Daily</button>
+                </div>
+                <div class="flex-row">
+                    <button class="btn btn-dark" onclick="UI.showModal('modal-leaderboard')"><i
+                            class="fas fa-trophy"></i> Ranks</button>
+                    <button class="btn btn-dark" onclick="UI.toggleTheme()"><i class="fas fa-adjust"></i> Theme</button>
+                </div>
+            </div>
+        </section>
 
-    <!-- Modal for Game Over -->
-    <div id="game-over-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2 id="modal-title">Game Over!</h2>
-            <p>Your Score: <span id="final-score">0</span></p>
-            <button id="play-again-btn">Play Again</button>
+        <!-- ================= GAMEPLAY ================= -->
+        <section id="screen-game" class="screen">
+            <header class="game-hud">
+                <div class="hud-top">
+                    <button class="btn btn-icon" onclick="UI.showModal('modal-pause')"><i
+                            class="fas fa-pause"></i></button>
+                    <div class="hud-center">
+                        <div class="hud-level">LEVEL <span id="hud-level">1</span></div>
+                        <div class="hud-score">SCORE: <span id="hud-score">0</span> <span id="hud-combo"
+                                class="combo-badge"></span></div>
+                    </div>
+                    <button class="btn btn-icon theme-toggle" onclick="AudioSys.toggleMusic()"><i
+                            class="fas fa-music"></i></button>
+                </div>
+                <div class="timer-bar-container">
+                    <div id="timer-bar" class="timer-bar"></div>
+                </div>
+            </header>
+
+            <div class="board-area flex-center">
+                <div id="board-wrapper">
+                    <svg id="path-layer"></svg>
+                    <div id="board-container"></div>
+                </div>
+            </div>
+
+            <footer class="game-footer powerups-container">
+                <!-- Generated by JS -->
+            </footer>
+        </section>
+
+        <!-- ================= MODALS ================= -->
+        <div id="modal-overlay" class="hidden">
+
+            <!-- Pause Modal -->
+            <div id="modal-pause" class="modal hidden">
+                <h2>PAUSED</h2>
+                <div class="modal-body">Take a breath, master!</div>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary" onclick="UI.hideModal();">RESUME</button>
+                    <button class="btn btn-danger"
+                        onclick="UI.hideModal(); UI.switchScreen('screen-menu'); GameEngine.quit();">QUIT TO
+                        MENU</button>
+                </div>
+            </div>
+
+            <!-- Game Over -->
+            <div id="modal-gameover" class="modal hidden">
+                <h2 class="text-danger">TIME'S UP!</h2>
+                <div class="modal-body">
+                    <p>Score: <span id="go-score">0</span></p>
+                    <button class="btn btn-ad" onclick="AdsManager.watchAdForTime()"><i class="fas fa-video"></i> Watch
+                        Ad for +15s</button>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary"
+                        onclick="UI.hideModal(); GameEngine.startLevel(StorageManager.data.level);">RETRY</button>
+                    <button class="btn btn-secondary"
+                        onclick="UI.hideModal(); UI.switchScreen('screen-menu');">MENU</button>
+                </div>
+            </div>
+
+            <!-- Victory -->
+            <div id="modal-victory" class="modal hidden">
+                <h2 class="text-success">LEVEL CLEARED!</h2>
+                <div class="victory-stars" id="victory-stars">
+                    <i class="fas fa-star text-muted"></i>
+                    <i class="fas fa-star text-muted"></i>
+                    <i class="fas fa-star text-muted"></i>
+                </div>
+                <div class="modal-stats">
+                    <div class="stat"><i class="fas fa-star text-gold"></i> Score: <span id="vic-score">0</span></div>
+                    <div class="stat"><i class="fas fa-coins text-gold"></i> Earned: +<span id="vic-coins">0</span>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-ad" onclick="AdsManager.watchAdForMultiplier()"><i class="fas fa-video"></i>
+                        Get 2x Coins</button>
+                    <button class="btn btn-primary"
+                        onclick="UI.hideModal(); GameEngine.startLevel(StorageManager.data.level);">NEXT LEVEL <i
+                            class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Shop Modal -->
+            <div id="modal-shop" class="modal hidden">
+                <h2><i class="fas fa-store"></i> SHOP</h2>
+                <div class="modal-body shop-list" id="shop-list"></div>
+                <div class="modal-buttons flex-col">
+                    <button class="btn btn-ad btn-large" onclick="AdsManager.watchAdForCoins()"><i
+                            class="fas fa-video"></i> Watch Ad (+200 Coins)</button>
+                    <button class="btn btn-secondary" onclick="UI.hideModal()">CLOSE</button>
+                </div>
+            </div>
+
+            <!-- Leaderboard Modal -->
+            <div id="modal-leaderboard" class="modal hidden">
+                <h2><i class="fas fa-trophy text-gold"></i> LEADERBOARD</h2>
+                <div class="modal-body list-group" id="leaderboard-list"></div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="UI.hideModal()">CLOSE</button>
+                </div>
+            </div>
+
+            <!-- Daily Modal -->
+            <div id="modal-daily" class="modal hidden">
+                <h2><i class="fas fa-gift text-accent"></i> DAILY REWARD</h2>
+                <div class="modal-body">
+                    <div class="daily-chest"><i class="fas fa-treasure-chest fa-4x text-gold"></i></div>
+                    <p>Claim your daily bonus!</p>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary glow" onclick="StorageManager.claimDaily()">CLAIM +500 <i
+                            class="fas fa-coins text-gold"></i></button>
+                    <button class="btn btn-secondary" onclick="UI.hideModal()">CLOSE</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
