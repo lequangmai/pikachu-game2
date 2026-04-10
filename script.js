@@ -346,7 +346,7 @@ const UI = {
         $(id).classList.add('active');
         if(id === 'screen-menu') this.updateMenuData();
     },
-    showModal(id) { $('modal-overlay').classList.remove('hidden'); $('.modal').forEach(m => m.classList.add('hidden')); $(id).classList.remove('hidden'); },
+    showModal(id) { $('modal-overlay').classList.remove('hidden'); document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); $(id).classList.remove('hidden'); },
     hideModal() { $('modal-overlay').classList.add('hidden'); },
     
     updateMenuData() {
