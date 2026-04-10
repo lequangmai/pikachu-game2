@@ -332,7 +332,7 @@ const GameEngine = {
         
         UI.showModal('modal-victory');
         setTimeout(() => {
-  this.startLevel(this.state.level + 1);
+   GameEngine.startLevel( GameEngine.state.level + 1);
 }, 1000);
     },
     
