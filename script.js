@@ -331,6 +331,9 @@ const GameEngine = {
         $('victory-stars').innerHTML = starHtml;
         
         UI.showModal('modal-victory');
+        setTimeout(() => {
+  this.startLevel(this.state.level + 1);
+}, 1000);
     },
     
     quit() { this.state.playing = false; clearInterval(this.timerId); }
