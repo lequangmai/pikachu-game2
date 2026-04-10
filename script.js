@@ -218,6 +218,7 @@ const GameEngine = {
         this.state.score = 0; this.state.combo = 0; this.state.frozen = false; this.state.playing = true;
         this.selected = null;
         
+        UI.hideModal(); // Ensure modals are closed
         UI.switchScreen('screen-game');
         UI.renderBoard(this.board);
         UI.renderPowerups();
@@ -331,9 +332,6 @@ const GameEngine = {
         $('victory-stars').innerHTML = starHtml;
         
         UI.showModal('modal-victory');
-        setTimeout(() => {
-   GameEngine.startLevel( GameEngine.state.level + 1);
-}, 1000);
     },
     
     quit() { this.state.playing = false; clearInterval(this.timerId); }

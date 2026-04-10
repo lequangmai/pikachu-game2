@@ -127,7 +127,7 @@
                     <button class="btn btn-ad" onclick="AdsManager.watchAdForMultiplier()"><i class="fas fa-video"></i>
                         Get 2x Coins</button>
                     <button class="btn btn-primary"
-                        onclick="UI.hideModal(); GameEngine.startLevel(StorageManager.data.level);">NEXT LEVEL <i
+                        onclick="UI.hideModal(); GameEngine.startLevel(GameEngine.state.level + 1);">NEXT LEVEL <i
                             class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
