@@ -151,16 +151,24 @@ class Board {
         
         let tiles = [];
         let types = CONFIG.ICONS.slice(0, numTypes);
-        for (let i = 0; i < R*C; i += 2) {
+        let totalTiles = R * C;
+        // Ensure totalTiles is even (safety check)
+        if (totalTiles % 2 !== 0) totalTiles--; 
+        
+        for (let i = 0; i < totalTiles; i += 2) {
             let t = types[(i/2) % types.length];
             tiles.push(t, t);
         }
         Utils.shuffle(tiles);
         
-        for (let r = 1; r <= R; r++)
-            for (let c = 1; c <= C; c++)
-                this.grid[r][c] = tiles.pop();
+        for (let r = 1; r <= R; r++) {
+            for (let c = 1; c <= C; c++) {
+                if (tiles.length > 0) this.grid[r][c] = tiles.pop();
+                else this.grid[r][c] = 0;
+            }
+        }
                 
+        this.tilesLeft = totalTiles;
         this.ensureSolvable(true);
     }
     
@@ -332,6 +340,7 @@ const GameEngine = {
         $('victory-stars').innerHTML = starHtml;
         
         UI.showModal('modal-victory');
+        console.log("Victory Modal triggered for level", GameEngine.state.level);
     },
     
     quit() { this.state.playing = false; clearInterval(this.timerId); }
@@ -346,8 +355,33 @@ const UI = {
         $(id).classList.add('active');
         if(id === 'screen-menu') this.updateMenuData();
     },
-    showModal(id) { $('modal-overlay').classList.remove('hidden'); document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); $(id).classList.remove('hidden'); },
-    hideModal() { $('modal-overlay').classList.add('hidden'); },
+    showModal(id) { 
+        const overlay = $('modal-overlay');
+        const target = $(id);
+        if(!overlay || !target) return;
+        
+        overlay.classList.remove('hidden'); 
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'auto';
+
+        document.querySelectorAll('.modal').forEach(m => {
+            m.classList.add('hidden');
+            m.style.display = 'none';
+        });
+
+        target.classList.remove('hidden'); 
+        target.style.display = 'flex';
+        console.log("Showing modal:", id);
+    },
+    hideModal() { 
+        const overlay = $('modal-overlay');
+        if(overlay) {
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
+            overlay.style.pointerEvents = 'none';
+        }
+    },
     
     updateMenuData() {
         $('menu-level').innerText = StorageManager.data.level;

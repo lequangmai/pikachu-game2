@@ -121,13 +121,24 @@ body { font-family: 'Nunito', sans-serif; background: var(--bg-solid); color: va
 .powerup-btn:disabled { opacity: 0.5; filter: grayscale(1); }
 
 /* Modals */
-#modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; align-items: center; padding: 20px; transition: opacity 0.3s; }
-#modal-overlay.hidden { opacity: 0; pointer-events: none; }
-.modal { background: var(--bg-solid); width: 100%; max-width: 400px; border-radius: var(--border-radius); padding: 25px; display: flex; flex-direction: column; gap: 20px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); transform: translateY(0); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.modal.hidden { display: none; transform: translateY(50px); }
-.modal h2 { font-size: 2rem; margin-bottom: 5px; }
-.modal-body { font-size: 1.1rem; color: var(--text-muted); }
-.modal-buttons { display: flex; gap: 10px; width: 100%; }
+#modal-overlay { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); 
+    z-index: 1000; display: none; justify-content: center; align-items: center; 
+    padding: 20px; transition: opacity 0.3s; 
+}
+#modal-overlay.hidden { opacity: 0; pointer-events: none; display: none !important; }
+
+.modal { 
+    background: var(--bg-solid); width: 100%; max-width: 400px; 
+    border-radius: var(--border-radius); padding: 30px; 
+    display: none; flex-direction: column; gap: 20px; 
+    text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
+    border: 1px solid var(--tile-border);
+}
+.modal.hidden { display: none !important; }
+.modal-buttons { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+@media (min-width: 480px) { .modal-buttons { flex-direction: row; } }
 .victory-stars { font-size: 3rem; display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
 .victory-stars i.active { color: var(--gold); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
